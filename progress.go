@@ -1,20 +1,22 @@
 package main
 
 import (
-	"bytes"
-	"errors"
-	"github.com/gosurui/uiprogress"
+	"github.com/gosuri/uiprogress"
 	"io"
 )
 
 type Progress struct {
 	io.Reader
 	Total int64 //전체 파일 크기 content-size
-	Recv  int64 //현재까지 받은 파일 크기
+	Recv  int   //현재까지 받은 파일 크기
+	Bar   *uiprogress.Bar
 }
 
 func (ptr *Progress) Read(p []byte) (int, error) {
-}
-
-func (ptr *Progress) GetBar() uiprogress.Bar {
+	n, err := ptr.Reader.Read(p)
+	if n > 0 {
+		ptr.Recv += n
+		ptr.Bar.Set(ptr.Recv)
+	}
+	return n, err
 }
